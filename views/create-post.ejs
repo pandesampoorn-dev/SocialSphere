@@ -1,0 +1,137 @@
+<%- include('partials/header') %>
+
+<div class="container py-3">
+  <div class="row justify-content-center">
+    <div class="col-lg-10">
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="mb-0 fw-semibold">Create New Post</h5>
+        <div class="d-flex gap-2">
+          <button type="button" class="btn btn-outline-primary btn-sm" id="aiToggleBtn">AI Assistant</button>
+          <a href="/" class="btn btn-outline-secondary btn-sm">Back</a>
+        </div>
+      </div>
+
+      <% if (errors && errors.length > 0) { %>
+        <div class="alert alert-danger">
+          <ul class="mb-0 ps-3"><% errors.forEach(e => { %><li><%= e.msg %></li><% }) %></ul>
+        </div>
+      <% } %>
+
+      <div class="row g-3" id="editorLayout">
+        <div class="col" id="editorCol">
+          <div class="card border">
+            <div class="card-body p-4">
+              <form action="/posts/create" method="POST" enctype="multipart/form-data" id="postForm">
+
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Title *</label>
+                  <input type="text" name="title" id="postTitle" class="form-control"
+                    value="<%= typeof old !== 'undefined' ? old.title : '' %>"
+                    placeholder="Give your post a title..." maxlength="100" required>
+                </div>
+
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Content</label>
+                  <textarea name="body" id="postBody" class="form-control" rows="8"
+                    placeholder="Write your post here... (optional if you're posting media)"
+                    maxlength="5000"><%= typeof old !== 'undefined' ? old.body : '' %></textarea>
+                  <div class="form-text text-end"><span id="charCount">0</span> / 5000</div>
+                </div>
+
+                <!-- Media Upload -->
+                <div class="mb-3">
+                  <label class="form-label fw-semibold">Photos / Videos <span class="text-muted fw-normal">(optional, max 5 files, 50 MB each)</span></label>
+                  <input type="file" name="media" id="mediaInput" class="form-control" multiple
+                    accept="image/jpeg,image/png,image/gif,image/webp,video/mp4,video/webm,video/quicktime">
+                  <div class="form-text">Supported: JPG, PNG, GIF, WEBP, MP4, WEBM, MOV</div>
+
+                  <!-- Preview area -->
+                  <div id="mediaPreview" class="mt-2 d-flex gap-2 flex-wrap"></div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label fw-semibold">Tags (optional)</label>
+                  <input type="text" name="tags" class="form-control"
+                    placeholder="e.g. javascript, tips, webdev (comma separated)"
+                    value="<%= typeof old !== 'undefined' ? old.tags : '' %>">
+                </div>
+
+                <div class="d-flex gap-2">
+                  <button type="submit" class="btn btn-primary px-4" id="submitBtn">Publish Post</button>
+                  <a href="/" class="btn btn-outline-secondary">Discard</a>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <!-- AI Panel -->
+        <div class="col-lg-4" id="aiPanel" style="display:none;">
+          <div class="card border">
+            <div class="card-header bg-white d-flex align-items-center justify-content-between">
+              <span class="fw-semibold" style="font-size:14px;">AI Writing Assistant</span>
+              <button type="button" class="btn-close btn-sm" id="aiCloseBtn"></button>
+            </div>
+            <div class="card-body p-3">
+              <p class="text-muted mb-2" style="font-size:12px;font-weight:600;">Quick Actions</p>
+              <div class="d-grid gap-2 mb-3">
+                <button class="btn btn-outline-secondary btn-sm text-start ai-action-btn" data-action="continue">
+                  <strong>Continue Writing</strong><br>
+                  <span class="text-muted" style="font-size:11px;">Add more paragraphs</span>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm text-start ai-action-btn" data-action="improve">
+                  <strong>Improve Writing</strong><br>
+                  <span class="text-muted" style="font-size:11px;">Fix grammar and clarity</span>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm text-start ai-action-btn" data-action="shorten">
+                  <strong>Shorten Post</strong><br>
+                  <span class="text-muted" style="font-size:11px;">Make it more concise</span>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm text-start ai-action-btn" data-action="intro">
+                  <strong>Write Intro</strong><br>
+                  <span class="text-muted" style="font-size:11px;">Generate an opening paragraph</span>
+                </button>
+                <button class="btn btn-outline-secondary btn-sm text-start ai-action-btn" data-action="titles">
+                  <strong>Suggest Titles</strong><br>
+                  <span class="text-muted" style="font-size:11px;">Get 5 title ideas</span>
+                </button>
+              </div>
+              <p class="text-muted mb-2" style="font-size:12px;font-weight:600;">Change Tone</p>
+              <div class="d-flex gap-2 mb-3">
+                <button class="btn btn-outline-secondary btn-sm flex-fill ai-action-btn" data-action="tone_formal">Formal</button>
+                <button class="btn btn-outline-secondary btn-sm flex-fill ai-action-btn" data-action="tone_casual">Casual</button>
+              </div>
+              <p class="text-muted mb-2" style="font-size:12px;font-weight:600;">Custom Instruction</p>
+              <textarea id="customInstruction" class="form-control form-control-sm mb-2" rows="2"
+                placeholder="e.g. Add a conclusion, make it funnier..."></textarea>
+              <button class="btn btn-primary btn-sm w-100 mb-3" id="customBtn">Apply</button>
+
+              <div id="aiOutput" style="display:none;">
+                <hr class="my-2">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <small class="text-muted" id="aiOutputLabel">Result</small>
+                  <button type="button" class="btn-close btn-sm" id="aiOutputClose"></button>
+                </div>
+                <div id="aiOutputText" class="p-2 rounded border bg-light"
+                  style="font-size:13px;line-height:1.65;white-space:pre-wrap;max-height:220px;overflow-y:auto;min-height:40px;"></div>
+                <div id="aiLoading" style="display:none;" class="text-center py-2">
+                  <span class="ai-dot"></span><span class="ai-dot"></span><span class="ai-dot"></span>
+                </div>
+                <div id="aiOutputActions" style="display:none;" class="d-flex gap-2 mt-2">
+                  <button class="btn btn-primary btn-sm flex-fill" id="aiReplaceBtn">Replace Body</button>
+                  <button class="btn btn-outline-secondary btn-sm flex-fill" id="aiAppendBtn">Append</button>
+                  <button class="btn btn-outline-secondary btn-sm" id="aiCopyBtn" title="Copy">Copy</button>
+                </div>
+              </div>
+              <div id="aiError" style="display:none;" class="alert alert-danger p-2 mt-2 small"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/ai-assistant.js"></script>
+<script src="/js/media-preview.js"></script>
+<%- include('partials/footer') %>

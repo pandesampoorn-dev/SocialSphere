@@ -1,0 +1,68 @@
+<%- include('partials/header') %>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <h5 class="fw-bold mb-3">Account Settings</h5>
+
+      <div class="card border mb-3">
+        <div class="card-header bg-white">
+          <h6 class="mb-0 fw-semibold">Edit Profile</h6>
+        </div>
+        <div class="card-body">
+          <% if (errors && errors.length > 0) { %>
+            <div class="alert alert-danger">
+              <ul class="mb-0 ps-3"><% errors.forEach(e => { %><li><%= e.msg %></li><% }) %></ul>
+            </div>
+          <% } %>
+
+          <form action="/users/<%= user.username %>/settings" method="POST" enctype="multipart/form-data">
+            <!-- Current avatar preview -->
+            <div class="mb-3 text-center">
+              <% if (user.avatar) { %>
+                <img src="<%= user.avatar %>" class="rounded-circle mb-2" width="80" height="80" style="object-fit:cover">
+              <% } else { %>
+                <div class="avatar-xl mx-auto mb-2"><%= user.username[0].toUpperCase() %></div>
+              <% } %>
+              <div>
+                <label class="form-label d-block small text-muted">Change Profile Photo</label>
+                <input type="file" name="avatar" class="form-control form-control-sm"
+                  accept="image/jpeg,image/png,image/webp">
+                <div class="form-text">JPG, PNG or WEBP. Max 5 MB.</div>
+              </div>
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Username</label>
+              <input type="text" class="form-control" value="<%= user.username %>" disabled>
+              <div class="form-text">Username cannot be changed.</div>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" value="<%= user.email %>" disabled>
+            </div>
+            <div class="mb-3">
+              <label class="form-label">Bio (optional)</label>
+              <textarea name="bio" class="form-control" rows="3" maxlength="150"
+                placeholder="Tell people about yourself..."><%= user.bio || '' %></textarea>
+              <div class="form-text">Max 150 characters.</div>
+            </div>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+            <a href="/users/<%= user.username %>" class="btn btn-outline-secondary ms-2">Cancel</a>
+          </form>
+        </div>
+      </div>
+
+      <div class="card border border-danger">
+        <div class="card-header bg-white">
+          <h6 class="mb-0 fw-semibold text-danger">Account</h6>
+        </div>
+        <div class="card-body">
+          <a href="/auth/logout" class="btn btn-outline-danger btn-sm">Logout</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

@@ -1,0 +1,122 @@
+/* SocialSphere v2 — Main Stylesheet */
+
+body {
+  background-color: #f8f9fa;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ── Avatars ─────────────────────────────────────── */
+.avatar-xs { width:28px; height:28px; min-width:28px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600; }
+.avatar-sm { width:36px; height:36px; min-width:36px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-size:14px; font-weight:600; }
+.avatar-lg { width:60px; height:60px; min-width:60px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; font-weight:700; }
+.avatar-xl { width:80px; height:80px; min-width:80px; border-radius:50%; background:#0d6efd; color:#fff; display:flex; align-items:center; justify-content:center; font-size:28px; font-weight:700; }
+
+/* ── Navbar ──────────────────────────────────────── */
+.navbar { box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+
+/* ── Cards ───────────────────────────────────────── */
+.card { border-radius: 8px; }
+.card-header { font-size: 14px; border-bottom: 1px solid #e9ecef; }
+
+/* ── Post ─────────────────────────────────────────── */
+.post-body { font-size:15px; line-height:1.75; color:#333; white-space:pre-wrap; word-break:break-word; }
+
+/* ── Media Gallery ───────────────────────────────── */
+.media-gallery { display:flex; flex-direction:column; gap:8px; }
+.media-item { max-width:100%; border-radius:8px; }
+
+/* ── DM / Chat bubbles ───────────────────────────── */
+.chat-bubble {
+  display: inline-block;
+  padding: 8px 13px;
+  border-radius: 16px;
+  font-size: 14px;
+  line-height: 1.5;
+  background-color: #f1f3f5;
+  color: #212529;
+  word-break: break-word;
+  max-width: 320px;
+}
+.chat-bubble-own { background-color: #0d6efd; color: #fff; }
+.chat-meta { font-size: 11px; color: #adb5bd; margin-top: 3px; }
+
+/* Group chat bubbles */
+.chat-msg { display:flex; gap:10px; margin-bottom:14px; animation: fadeIn 0.2s ease; }
+.chat-msg.own { flex-direction: row-reverse; }
+.chat-msg .chat-bubble { background-color: #f1f3f5; }
+.chat-msg.own .chat-bubble { background-color: #0d6efd; color: #fff; }
+.chat-msg.own .chat-meta { text-align: right; }
+.system-msg { text-align:center; font-size:12px; color:#adb5bd; margin:8px 0; }
+
+/* ── Online users ─────────────────────────────────── */
+.online-user-item { display:flex; align-items:center; gap:8px; padding:6px 8px; border-radius:6px; font-size:13px; color:#555; }
+
+/* ── DM Contact row hover ─────────────────────────── */
+.dm-contact-row { transition: background 0.15s; }
+.dm-contact-row:hover { background-color: #f8f9fa !important; }
+
+/* ── AI panel ─────────────────────────────────────── */
+.ai-dot { display:inline-block; width:8px; height:8px; margin:0 3px; border-radius:50%; background:#0d6efd; animation:aiDotBounce 1.2s ease-in-out infinite; }
+.ai-dot:nth-child(2) { animation-delay:.2s; }
+.ai-dot:nth-child(3) { animation-delay:.4s; }
+@keyframes aiDotBounce { 0%,80%,100%{transform:translateY(0);opacity:.4} 40%{transform:translateY(-7px);opacity:1} }
+.ai-action-btn { border-color:#dee2e6; text-align:left; padding:8px 12px; line-height:1.4; transition:border-color .15s,background-color .15s; }
+.ai-action-btn:hover { border-color:#0d6efd; background-color:#f0f6ff; }
+.ai-toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(10px); background:#212529; color:#fff; padding:9px 20px; border-radius:6px; font-size:13px; font-weight:500; z-index:9999; opacity:0; transition:opacity .25s,transform .25s; pointer-events:none; box-shadow:0 3px 10px rgba(0,0,0,0.2); }
+.ai-toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── JWT info badge ───────────────────────────────── */
+.jwt-badge { font-size:11px; background:#e9ecef; color:#495057; padding:2px 8px; border-radius:4px; font-family:monospace; }
+
+/* ── Misc ─────────────────────────────────────────── */
+.form-control:focus { border-color:#86b7fe; box-shadow:0 0 0 0.2rem rgba(13,110,253,.15); }
+.badge { font-weight:500; }
+.btn { border-radius:6px; font-size:14px; }
+.btn-sm { font-size:13px; }
+.alert { font-size:14px; border-radius:6px; }
+
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+
+@media (max-width:576px) {
+  .navbar-brand { font-size:15px; }
+  .avatar-xl { width:60px; height:60px; font-size:22px; }
+}
+
+/* ============================================
+   Video Call Styles
+============================================ */
+
+/* Video containers */
+#remoteVideo {
+  background: #111;
+  display: block;
+}
+#localVideo {
+  box-shadow: 0 2px 12px rgba(0,0,0,0.5);
+  cursor: default;
+}
+
+/* Incoming call toast */
+#globalCallToast {
+  animation: slideInRight 0.3s ease;
+}
+@keyframes slideInRight {
+  from { opacity:0; transform: translateX(40px); }
+  to   { opacity:1; transform: translateX(0); }
+}
+
+/* Call log */
+#callLog {
+  font-family: monospace;
+  max-height: 100px;
+  overflow-y: auto;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+/* Idle screen */
+#idleScreen {
+  background: #1a1a2e;
+}

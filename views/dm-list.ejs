@@ -1,0 +1,51 @@
+<%- include('partials/header') %>
+
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <h5 class="fw-bold mb-3">Messages</h5>
+
+      <% if (contacts.length === 0) { %>
+        <div class="card border text-center py-5">
+          <div class="card-body">
+            <h6 class="fw-semibold">No conversations yet</h6>
+            <p class="text-muted small">Visit someone's profile and click "Message" to start a chat.</p>
+            <a href="/" class="btn btn-primary btn-sm">Browse Feed</a>
+          </div>
+        </div>
+      <% } else { %>
+        <div class="card border">
+          <div class="card-body p-0">
+            <% contacts.forEach(({ user: contact, unread, latest }) => { %>
+              <a href="/dm/<%= contact.username %>" class="text-decoration-none text-dark">
+                <div class="d-flex align-items-center gap-3 px-3 py-2 border-bottom dm-contact-row <%= unread > 0 ? 'bg-light' : '' %>">
+                  <% if (contact.avatar) { %>
+                    <img src="<%= contact.avatar %>" class="rounded-circle flex-shrink-0" width="44" height="44" style="object-fit:cover">
+                  <% } else { %>
+                    <div class="avatar-sm flex-shrink-0"><%= contact.username[0].toUpperCase() %></div>
+                  <% } %>
+                  <div class="flex-grow-1 min-width-0">
+                    <div class="d-flex justify-content-between align-items-center">
+                      <span class="fw-semibold small">@<%= contact.username %></span>
+                      <% if (latest) { %>
+                        <span class="text-muted" style="font-size:11px"><%= new Date(latest.createdAt).toLocaleDateString('en-US',{month:'short',day:'numeric'}) %></span>
+                      <% } %>
+                    </div>
+                    <% if (latest) { %>
+                      <div class="text-muted small text-truncate"><%= latest.body.substring(0,50) %></div>
+                    <% } %>
+                  </div>
+                  <% if (unread > 0) { %>
+                    <span class="badge bg-danger rounded-pill"><%= unread %></span>
+                  <% } %>
+                </div>
+              </a>
+            <% }) %>
+          </div>
+        </div>
+      <% } %>
+    </div>
+  </div>
+</div>
+
+<%- include('partials/footer') %>

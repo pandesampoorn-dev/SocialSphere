@@ -1,0 +1,148 @@
+<%- include('partials/header') %>
+
+<div class="container py-3">
+  <div class="row g-4">
+
+    <!-- Feed -->
+    <div class="col-lg-8">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0 fw-semibold">Your Feed</h5>
+        <a href="/posts/create" class="btn btn-primary btn-sm">+ New Post</a>
+      </div>
+
+      <% if (posts.length === 0) { %>
+        <div class="card border text-center py-5">
+          <div class="card-body">
+            <h6 class="fw-semibold">Your feed is empty</h6>
+            <p class="text-muted small">Follow people or write your first post.</p>
+            <a href="/posts/create" class="btn btn-primary btn-sm">Write a post</a>
+          </div>
+        </div>
+      <% } %>
+
+      <% posts.forEach(post => { %>
+        <div class="card border mb-3">
+          <div class="card-body">
+            <div class="d-flex align-items-center gap-2 mb-2">
+              <% if (post.author.avatar) { %>
+                <img src="<%= post.author.avatar %>" class="rounded-circle" width="36" height="36" style="object-fit:cover">
+              <% } else { %>
+                <div class="avatar-sm"><%= post.author.username[0].toUpperCase() %></div>
+              <% } %>
+              <div>
+                <a href="/users/<%= post.author.username %>" class="fw-semibold text-decoration-none text-dark small">
+                  @<%= post.author.username %>
+                </a>
+                <div class="text-muted" style="font-size:11px">
+                  <%= new Date(post.createdAt).toLocaleDateString('en-US', {month:'short',day:'numeric',year:'numeric'}) %>
+                </div>
+              </div>
+            </div>
+
+            <a href="/posts/<%= post._id %>" class="text-decoration-none text-dark">
+              <h6 class="fw-semibold mb-1"><%= post.title %></h6>
+              <% if (post.body) { %>
+                <p class="text-muted small mb-2"><%= post.body.substring(0, 120) %><%= post.body.length > 120 ? '...' : '' %></p>
+              <% } %>
+            </a>
+
+            <!-- Media preview (first image/video only) -->
+            <% if (post.media && post.media.length > 0) { %>
+              <% const firstMedia = post.media[0]; %>
+              <% if (firstMedia.type === 'video') { %>
+                <video src="<%= firstMedia.url %>" class="img-fluid rounded mb-2" style="max-height:300px;width:100%;object-fit:cover;" controls muted></video>
+              <% } else { %>
+                <a href="/posts/<%= post._id %>">
+                  <img src="<%= firstMedia.url %>" class="img-fluid rounded mb-2" style="max-height:300px;width:100%;object-fit:cover;" alt="Post image">
+                </a>
+              <% } %>
+              <% if (post.media.length > 1) { %>
+                <p class="text-muted small">+ <%= post.media.length - 1 %> more photo<%= post.media.length > 2 ? 's/videos' : '/video' %></p>
+              <% } %>
+            <% } %>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <div>
+                <% if (post.tags && post.tags.length > 0) { %>
+                  <% post.tags.slice(0,3).forEach(tag => { %>
+                    <span class="badge bg-light text-secondary border me-1">#<%= tag %></span>
+                  <% }) %>
+                <% } %>
+              </div>
+              <small class="text-muted">&#10084; <%= post.likes.length %> &nbsp; Comments: <%= post.comments.length %></small>
+            </div>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="col-lg-4">
+      <% if (me) { %>
+      <div class="card border mb-3">
+        <div class="card-body text-center">
+          <% if (me.avatar) { %>
+            <img src="<%= me.avatar %>" class="rounded-circle mb-2" width="60" height="60" style="object-fit:cover">
+          <% } else { %>
+            <div class="avatar-lg mx-auto mb-2"><%= me.username[0].toUpperCase() %></div>
+          <% } %>
+          <h6 class="fw-semibold mb-0">@<%= me.username %></h6>
+          <% if (me.bio) { %><p class="text-muted small mt-1 mb-2"><%= me.bio %></p><% } %>
+          <div class="d-flex justify-content-center gap-4 mt-2 pt-2 border-top">
+            <div class="text-center">
+              <div class="fw-bold"><%= me.following ? me.following.length : 0 %></div>
+              <div class="text-muted" style="font-size:11px">Following</div>
+            </div>
+            <div class="text-center">
+              <div class="fw-bold"><%= me.followers ? me.followers.length : 0 %></div>
+              <div class="text-muted" style="font-size:11px">Followers</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <% } %>
+
+      <% if (suggested && suggested.length > 0) { %>
+      <div class="card border mb-3">
+        <div class="card-header bg-white">
+          <small class="fw-semibold text-muted text-uppercase">Suggested Users</small>
+        </div>
+        <div class="card-body p-0">
+          <% suggested.forEach(u => { %>
+            <div class="d-flex align-items-center justify-content-between px-3 py-2 border-bottom">
+              <div class="d-flex align-items-center gap-2">
+                <% if (u.avatar) { %>
+                  <img src="<%= u.avatar %>" class="rounded-circle" width="32" height="32" style="object-fit:cover">
+                <% } else { %>
+                  <div class="avatar-sm"><%= u.username[0].toUpperCase() %></div>
+                <% } %>
+                <div>
+                  <a href="/users/<%= u.username %>" class="text-decoration-none text-dark fw-semibold small">@<%= u.username %></a>
+                  <% if (u.bio) { %><div class="text-muted" style="font-size:11px"><%= u.bio.substring(0,28) %></div><% } %>
+                </div>
+              </div>
+              <form action="/follow/<%= u._id %>" method="POST">
+                <button type="submit" class="btn btn-outline-primary btn-sm" style="font-size:11px">Follow</button>
+              </form>
+            </div>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
+
+      <div class="card border">
+        <div class="card-header bg-white">
+          <small class="fw-semibold text-muted text-uppercase">Quick Links</small>
+        </div>
+        <div class="list-group list-group-flush">
+          <a href="/chat" class="list-group-item list-group-item-action small">Group Chat</a>
+          <a href="/dm" class="list-group-item list-group-item-action small">Direct Messages</a>
+          <a href="/posts/create" class="list-group-item list-group-item-action small">Write a Post</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<%- include('partials/footer') %>
