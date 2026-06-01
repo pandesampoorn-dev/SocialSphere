@@ -1,8 +1,8 @@
-# SocialSphere v2
+# SocialSphere
 
 Full-stack social media app built with Node.js, Express, MongoDB, EJS and Socket.IO.
 
-## New Features in v2
+## Features
 
 - **JWT Authentication** — Access tokens (15 min) + refresh tokens (7 days) in httpOnly cookies
 - **Photo & Video Posts** — Up to 5 files per post, stored locally in `public/uploads/`
