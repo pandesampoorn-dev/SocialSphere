@@ -8,7 +8,8 @@ Full-stack social media app built with Node.js, Express, MongoDB, EJS and Socket
 - **Photo & Video Posts** — Up to 5 files per post, stored locally in `public/uploads/`
 - **Profile Avatar Upload** — Upload a photo to your profile in Settings
 - **1-1 Direct Messages** — Private real-time chat using Socket.IO
-- **AI Writing Assistant** — GPT-4o panel in the post editor (optional)
+- **AI Writing Assistant** — Gemini 2.0 Flash panel in the post editor (optional)
+- **1-1 Video Calls** — Peer-to-peer video calling via WebRTC, signalled over Socket.IO
 
 ---
 
@@ -69,12 +70,14 @@ socialsphere/
 │   ├── users.js              Profile page, settings, avatar upload
 │   ├── index.js              Home feed, follow/unfollow, group chat page
 │   ├── dm.js                 DM conversation list + 1-1 chat page
-│   ├── ai.js                 AI writing assistant (GPT-4o streaming)
+│   ├── ai.js                 AI writing assistant (Gemini 2.0 Flash streaming)
+│   ├── video.js              Video call room page
 │   └── api.js                JWT-protected REST API
 │
 ├── controllers/
 │   ├── chatController.js     Socket.IO group chat logic
-│   └── dmController.js       Socket.IO 1-1 DM logic (namespace /dm)
+│   ├── dmController.js       Socket.IO 1-1 DM logic (namespace /dm)
+│   └── videoController.js    WebRTC signalling logic (namespace /video)
 │
 ├── middleware/
 │   ├── auth.js               ensureAuth, ensureGuest, jwtAuth
@@ -97,6 +100,7 @@ socialsphere/
 │   ├── chat.ejs              Group chat room
 │   ├── dm-list.ejs           All DM conversations
 │   ├── dm-chat.ejs           1-1 chat with a user
+│   ├── video-call.ejs        WebRTC video call room
 │   └── 404.ejs
 │
 └── public/
@@ -109,6 +113,7 @@ socialsphere/
         ├── chat.js           Group chat Socket.IO client
         ├── dm.js             DM Socket.IO client
         ├── media-preview.js  Preview files before posting
+        ├── video-call.js     WebRTC video call client
         └── ai-assistant.js   AI panel streaming client
 ```
 
@@ -164,14 +169,18 @@ Protected with JWT. Get your token from `GET /api/token` after logging in.
 
 ## AI Writing Assistant (optional)
 
-Add your OpenAI API key to `.env`:
+Powered by **Google Gemini 2.0 Flash**. Add your Gemini API key to `.env`:
+
 ```
-OPENAI_API_KEY=sk-...
+GEMINI_API_KEY=your-key-here
+GEMINI_MODEL=gemini-2.0-flash
 ```
+
+Get a free key at [aistudio.google.com](https://aistudio.google.com).
 
 Then click **AI Assistant** in the post editor. Actions available:
 - Continue Writing
-- Improve Writing  
+- Improve Writing
 - Shorten Post
 - Write Intro Paragraph
 - Suggest 5 Titles
@@ -179,6 +188,49 @@ Then click **AI Assistant** in the post editor. Actions available:
 - Custom free-form instruction
 
 Responses stream live, token by token. After streaming you can Replace, Append, or Copy.
+
+---
+
+## Video Calls (WebRTC)
+
+SocialSphere supports peer-to-peer 1-1 video calls using **WebRTC**. No audio or video data passes through the server — only the signalling messages do.
+
+### How it works
+
+```
+Caller                        Server (Socket.IO /video)          Callee
+  |                                     |                           |
+  |-- callUser (SDP offer) -----------> |                           |
+  |                                     |-- incomingCall ---------> |
+  |<-- callRinging -------------------- |                           |
+  |                                     |<-- acceptCall (answer) -- |
+  |<-- callAccepted ------------------- |                           |
+  |<----------- ICE candidates exchanged via server -------------->|
+  |                                                                  |
+  |<=================== P2P media stream (no server) =============>|
+```
+
+1. Caller visits `/video/call/:username` — browser requests camera/mic access
+2. Caller creates an **RTCPeerConnection**, generates an SDP offer, sends it via Socket.IO
+3. Callee receives an incoming call toast notification on any page
+4. Callee clicks **Answer** → navigates to the call page, sends back an SDP answer
+5. Both sides exchange **ICE candidates** through the server to establish the best network path
+6. Once connected, audio and video stream **directly peer-to-peer** — the server is no longer involved
+7. Either side can end the call; the other side is notified and the stream is closed
+
+### Signalling events
+
+| Event | Direction | Description |
+|---|---|---|
+| `register` | client → server | Associate userId with socket |
+| `callUser` | caller → server | Send SDP offer to callee |
+| `incomingCall` | server → callee | Deliver offer + caller info |
+| `callRinging` | server → caller | Confirm ring was delivered |
+| `acceptCall` | callee → server | Send SDP answer to caller |
+| `callAccepted` | server → caller | Deliver answer |
+| `rejectCall` | callee → server | Decline the call |
+| `iceCandidate` | either → server | Relay ICE candidate to peer |
+| `endCall` | either → server | Notify peer the call ended |
 
 ---
 
