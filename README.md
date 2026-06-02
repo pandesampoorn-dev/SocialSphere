@@ -1,250 +1,348 @@
-# SocialSphere
+# SocialSphere 🌐
 
-Full-stack social media app built with Node.js, Express, MongoDB, EJS and Socket.IO.
+A full-stack social media web app where you can post, chat, message, and video call — built with Node.js, MongoDB, and Socket.IO.
 
-## Features
-
-- **JWT Authentication** — Access tokens (15 min) + refresh tokens (7 days) in httpOnly cookies
-- **Photo & Video Posts** — Up to 5 files per post, stored locally in `public/uploads/`
-- **Profile Avatar Upload** — Upload a photo to your profile in Settings
-- **1-1 Direct Messages** — Private real-time chat using Socket.IO
-- **AI Writing Assistant** — Gemini 2.0 Flash panel in the post editor (optional)
-- **1-1 Video Calls** — Peer-to-peer video calling via WebRTC, signalled over Socket.IO
+> **Live demo:** https://socialsphere-8cfb.onrender.com
 
 ---
 
-## Setup
+## What can you do on SocialSphere?
 
-### 1. Extract & Install
+- 📝 **Create posts** with text, images, and videos
+- ❤️ **Like and comment** on posts
+- 👤 **Follow people** and see their posts in your feed
+- 🔍 **Search users** by name or bio
+- 💬 **Group chat** — a live chatroom anyone logged in can join
+- 📩 **Direct messages** — private 1-1 real-time chat
+- 📹 **Video calls** — peer-to-peer video calling right in the browser
+- 🤖 **AI writing assistant** — helps you write better posts using Google Gemini
 
+---
+
+## Tech Stack
+
+| What | Technology |
+|---|---|
+| Backend | Node.js + Express |
+| Database | MongoDB (via Mongoose) |
+| Frontend | EJS templates + Bootstrap 5 |
+| Real-time | Socket.IO |
+| Auth | Sessions + JWT |
+| File uploads | Multer (stored locally) |
+| AI | Google Gemini 2.0 Flash |
+| Video calls | WebRTC (peer-to-peer) |
+
+---
+
+## Running it locally
+
+### What you need first
+
+Before you start, make sure you have these installed on your computer:
+
+- **Node.js** — [Download here](https://nodejs.org) (pick the LTS version)
+- **MongoDB** — [Download here](https://www.mongodb.com/try/download/community) OR use the free cloud version [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
+- **Git** — [Download here](https://git-scm.com)
+
+To check if Node.js is installed, open a terminal and type:
 ```
-cd socialsphere
+node -v
+```
+You should see a version number like `v20.x.x`.
+
+---
+
+### Step 1 — Download the code
+
+```bash
+git clone https://github.com/pandesampoorn-dev/SocialSphere.git
+cd SocialSphere
+```
+
+---
+
+### Step 2 — Install dependencies
+
+This downloads all the packages the app needs:
+
+```bash
 npm install
 ```
 
-### 2. Create your .env file
+---
 
-```
-copy .env.example .env     (Windows)
-cp .env.example .env       (Mac / Linux)
-```
+### Step 3 — Set up your environment file
 
-Open `.env` and fill in:
+The app needs some secret keys and settings. Create a file called `.env` in the project root and paste this in:
 
 ```
 MONGODB_URI=mongodb://localhost:27017/socialsphere
-SESSION_SECRET=any-long-random-string
-JWT_SECRET=another-long-random-string
+SESSION_SECRET=pick-any-long-random-string-here
+JWT_SECRET=pick-another-long-random-string-here
 PORT=3000
 ```
 
-You do NOT need Cloudinary or any external storage service.
-Photos and videos are saved to the `public/uploads/` folder on your machine.
+> **What is a `.env` file?**
+> It stores configuration and secrets that your app reads at startup. It is never uploaded to GitHub (already in `.gitignore`), so your secrets stay private.
 
-### 3. Run
-
+**If you're using MongoDB Atlas (cloud)** instead of a local MongoDB install, replace `MONGODB_URI` with your Atlas connection string:
 ```
-npm start          production
-npm run dev        development (auto-restart on save)
+MONGODB_URI=mongodb+srv://youruser:yourpassword@yourcluster.mongodb.net/socialsphere?retryWrites=true&w=majority
 ```
 
-Open http://localhost:3000
-
----
-
-## Project Structure
-
-```
-socialsphere/
-├── app.js                    Entry point — Express + Socket.IO
-├── .env.example              All config variables
-│
-├── models/
-│   ├── User.js               bcrypt passwords, JWT refresh tokens, avatar, follow lists
-│   ├── Post.js               title, body, media[], tags, likes, comments
-│   └── Message.js            1-1 DM messages with read status
-│
-├── routes/
-│   ├── auth.js               Register, login, logout, JWT refresh endpoint
-│   ├── posts.js              Create/edit/delete posts, media upload, like, comment, search
-│   ├── users.js              Profile page, settings, avatar upload
-│   ├── index.js              Home feed, follow/unfollow, group chat page
-│   ├── dm.js                 DM conversation list + 1-1 chat page
-│   ├── ai.js                 AI writing assistant (Gemini 2.0 Flash streaming)
-│   ├── video.js              Video call room page
-│   └── api.js                JWT-protected REST API
-│
-├── controllers/
-│   ├── chatController.js     Socket.IO group chat logic
-│   ├── dmController.js       Socket.IO 1-1 DM logic (namespace /dm)
-│   └── videoController.js    WebRTC signalling logic (namespace /video)
-│
-├── middleware/
-│   ├── auth.js               ensureAuth, ensureGuest, jwtAuth
-│   └── upload.js             Multer — local disk storage for posts and avatars
-│
-├── views/                    14 EJS templates
-│   ├── partials/
-│   │   ├── header.ejs
-│   │   └── footer.ejs
-│   ├── guest.ejs             Landing page (not logged in)
-│   ├── index.ejs             Home feed
-│   ├── login.ejs
-│   ├── register.ejs
-│   ├── profile.ejs
-│   ├── settings.ejs          Bio + avatar upload
-│   ├── create-post.ejs       Post editor + media upload + AI panel
-│   ├── edit-post.ejs
-│   ├── single-post.ejs       Full post + comments + media gallery
-│   ├── search.ejs
-│   ├── chat.ejs              Group chat room
-│   ├── dm-list.ejs           All DM conversations
-│   ├── dm-chat.ejs           1-1 chat with a user
-│   ├── video-call.ejs        WebRTC video call room
-│   └── 404.ejs
-│
-└── public/
-    ├── css/style.css
-    ├── uploads/              Created automatically on first run
-    │   ├── posts/            Post images and videos stored here
-    │   └── avatars/          Profile avatars stored here
-    └── js/
-        ├── main.js
-        ├── chat.js           Group chat Socket.IO client
-        ├── dm.js             DM Socket.IO client
-        ├── media-preview.js  Preview files before posting
-        ├── video-call.js     WebRTC video call client
-        └── ai-assistant.js   AI panel streaming client
-```
-
----
-
-## How JWT Auth Works
-
-1. User logs in → server creates an **access token** (expires in 15 min) and a **refresh token** (7 days)
-2. Refresh token is saved to the database AND set as an httpOnly cookie
-3. Access token is stored in the session for page rendering
-4. When the access token expires, the client calls `POST /auth/refresh` to get a new one automatically
-5. On logout, the refresh token is deleted from the database — making it permanently invalid
-
----
-
-## Media Upload
-
-Photos and videos are stored directly on the server inside `public/uploads/`.
-
-- **Post media** — up to 5 files, 50 MB each. Accepted: JPG, PNG, GIF, WEBP, MP4, WEBM, MOV
-- **Avatar** — single image, 5 MB max. Accepted: JPG, PNG, WEBP
-- Files are given random names to avoid conflicts
-- Old avatar is automatically deleted from disk when a new one is uploaded
-- All post media is deleted from disk when the post is deleted
-
----
-
-## Direct Messages (1-1 Chat)
-
-- Visit any user's profile and click **Message**
-- Or go to **Messages** in the top navbar
-- Messages are stored in MongoDB and loaded on page open
-- New messages arrive instantly via Socket.IO (no refresh needed)
-- Typing indicator shows when the other person is typing
-- Unread message count shown in the conversation list
-
----
-
-## REST API
-
-Protected with JWT. Get your token from `GET /api/token` after logging in.
-
-| Method | Route | Description |
-|--------|-------|-------------|
-| GET | `/api/token` | Get current access token |
-| GET | `/api/me` | Your user profile |
-| GET | `/api/feed` | Your personalised feed |
-| GET | `/api/posts/:id` | Single post |
-| POST | `/api/posts/:id/like` | Toggle like on a post |
-| POST | `/auth/refresh` | Refresh expired access token |
-
----
-
-## AI Writing Assistant (optional)
-
-Powered by **Google Gemini 2.0 Flash**. Add your Gemini API key to `.env`:
-
+**To enable the AI assistant**, add your Gemini API key (free at [aistudio.google.com](https://aistudio.google.com)):
 ```
 GEMINI_API_KEY=your-key-here
 GEMINI_MODEL=gemini-2.0-flash
 ```
 
-Get a free key at [aistudio.google.com](https://aistudio.google.com).
+---
 
-Then click **AI Assistant** in the post editor. Actions available:
-- Continue Writing
-- Improve Writing
-- Shorten Post
-- Write Intro Paragraph
-- Suggest 5 Titles
-- Rewrite in Formal or Casual tone
-- Custom free-form instruction
+### Step 4 — Start the app
 
-Responses stream live, token by token. After streaming you can Replace, Append, or Copy.
+```bash
+npm start
+```
+
+Then open your browser and go to:
+```
+http://localhost:3000
+```
+
+You should see the SocialSphere landing page. Register an account and start exploring!
+
+> **Tip:** During development, use `npm run dev` instead of `npm start`. It automatically restarts the server every time you save a file.
 
 ---
 
-## Video Calls (WebRTC)
+## Features explained
 
-SocialSphere supports peer-to-peer 1-1 video calls using **WebRTC**. No audio or video data passes through the server — only the signalling messages do.
+### 🔐 Authentication
 
-### How it works
+- Register with a username, email and password
+- Passwords are encrypted before being stored (using bcrypt)
+- Login creates a **session** (keeps you logged in) and a **JWT token** (used for the API)
+- A "refresh token" system keeps you logged in for 7 days without re-entering your password
+
+### 📝 Posts
+
+- Write a post with a title, body text, and optional tags
+- Attach up to **5 photos or videos** per post (JPG, PNG, GIF, WEBP, MP4, WEBM, MOV)
+- Max file size: 50 MB per file
+- Like, comment, edit, and delete your own posts
+
+### 👥 Follow System
+
+- Follow other users to see their posts in your home feed
+- The home feed shows posts from everyone you follow, newest first
+- Suggested users are shown on the home page
+
+### 💬 Group Chat
+
+- Click **Chat** in the navbar to join the live group chatroom
+- All logged-in users see messages in real time
+- Shows who is currently online and typing indicators
+
+### 📩 Direct Messages
+
+- Go to any user's profile and click **Message** to start a DM
+- Messages are saved in the database so you can scroll back through history
+- New messages appear instantly without refreshing the page
+- Shows unread message count in the conversation list
+
+### 📹 Video Calls (WebRTC)
+
+Video calls work **peer-to-peer** — meaning the video and audio go directly between the two browsers. The server only helps the two users find each other (called "signalling").
+
+**How to start a call:**
+1. Go to a user's profile or DM chat
+2. Click the **Video Call** button
+3. Allow browser access to your camera and microphone
+4. Click **Start Call**
+5. The other person gets a notification popup anywhere on the site
+6. They click **Answer** and the call connects
+
+**What happens technically:**
+1. Your browser creates an offer (SDP) describing your audio/video capabilities
+2. The offer is sent to the other user via Socket.IO
+3. They send back an answer
+4. Both browsers exchange ICE candidates (network path info)
+5. A direct peer-to-peer connection is established
+6. Video/audio flows directly — **no media passes through the server**
+
+### 🤖 AI Writing Assistant
+
+When creating a post, click **AI Assistant** to open a side panel powered by Google Gemini 2.0 Flash.
+
+Available actions:
+- **Continue Writing** — adds more content to what you've written
+- **Improve Writing** — fixes grammar and clarity
+- **Shorten Post** — makes it more concise
+- **Write Intro** — generates an opening paragraph
+- **Suggest Titles** — gives you 5 title options
+- **Formal / Casual tone** — rewrites your post in a different style
+- **Custom instruction** — tell it anything, e.g. "add a conclusion" or "make it funnier"
+
+The response streams in word by word. You can then **Replace**, **Append**, or **Copy** the result.
+
+---
+
+## Project structure
 
 ```
-Caller                        Server (Socket.IO /video)          Callee
-  |                                     |                           |
-  |-- callUser (SDP offer) -----------> |                           |
-  |                                     |-- incomingCall ---------> |
-  |<-- callRinging -------------------- |                           |
-  |                                     |<-- acceptCall (answer) -- |
-  |<-- callAccepted ------------------- |                           |
-  |<----------- ICE candidates exchanged via server -------------->|
-  |                                                                  |
-  |<=================== P2P media stream (no server) =============>|
+SocialSphere/
+│
+├── app.js                  ← Main entry point. Starts the server.
+│
+├── .env                    ← Your secret config (you create this)
+├── .gitignore              ← Tells git what NOT to upload (includes .env)
+├── package.json            ← Lists all dependencies
+│
+├── models/                 ← Database schemas (what data looks like)
+│   ├── User.js             ← Username, password, avatar, followers
+│   ├── Post.js             ← Title, body, media, likes, comments
+│   └── Message.js          ← DM messages between users
+│
+├── routes/                 ← URL handlers (what happens when you visit a page)
+│   ├── index.js            ← Home feed, follow/unfollow
+│   ├── auth.js             ← Login, register, logout
+│   ├── posts.js            ← Create, edit, delete, like, comment
+│   ├── users.js            ← Profiles, settings, user search
+│   ├── dm.js               ← Direct message pages
+│   ├── video.js            ← Video call page
+│   ├── ai.js               ← AI assistant endpoint
+│   └── api.js              ← JSON API (for developers)
+│
+├── controllers/            ← Real-time Socket.IO logic
+│   ├── chatController.js   ← Group chat
+│   ├── dmController.js     ← Direct messages
+│   └── videoController.js  ← Video call signalling
+│
+├── middleware/             ← Code that runs before route handlers
+│   ├── auth.js             ← Checks if user is logged in
+│   └── upload.js           ← Handles file uploads
+│
+├── views/                  ← HTML templates (what users see)
+│   ├── partials/
+│   │   ├── header.ejs      ← Top navbar (included on every page)
+│   │   └── footer.ejs      ← Scripts (included on every page)
+│   ├── index.ejs           ← Home feed
+│   ├── guest.ejs           ← Landing page (not logged in)
+│   ├── login.ejs
+│   ├── register.ejs
+│   ├── profile.ejs
+│   ├── settings.ejs
+│   ├── create-post.ejs     ← Post editor + AI panel
+│   ├── edit-post.ejs
+│   ├── single-post.ejs
+│   ├── search.ejs          ← User search results
+│   ├── chat.ejs            ← Group chatroom
+│   ├── dm-list.ejs         ← All DM conversations
+│   ├── dm-chat.ejs         ← 1-1 chat window
+│   ├── video-call.ejs      ← Video call screen
+│   └── 404.ejs
+│
+└── public/                 ← Static files served directly to the browser
+    ├── css/style.css
+    ├── uploads/            ← Uploaded photos and videos saved here
+    └── js/
+        ├── main.js
+        ├── chat.js         ← Group chat Socket.IO client
+        ├── dm.js           ← DM Socket.IO client
+        ├── video-call.js   ← WebRTC video call client
+        ├── media-preview.js
+        └── ai-assistant.js ← AI panel streaming client
 ```
 
-1. Caller visits `/video/call/:username` — browser requests camera/mic access
-2. Caller creates an **RTCPeerConnection**, generates an SDP offer, sends it via Socket.IO
-3. Callee receives an incoming call toast notification on any page
-4. Callee clicks **Answer** → navigates to the call page, sends back an SDP answer
-5. Both sides exchange **ICE candidates** through the server to establish the best network path
-6. Once connected, audio and video stream **directly peer-to-peer** — the server is no longer involved
-7. Either side can end the call; the other side is notified and the stream is closed
+---
 
-### Signalling events
+## Deploying to the internet
 
-| Event | Direction | Description |
+The easiest free option is **Render** (used for the live demo).
+
+### Step 1 — Push your code to GitHub
+```bash
+git add .
+git commit -m "ready to deploy"
+git push
+```
+
+### Step 2 — Set up MongoDB Atlas
+1. Go to [mongodb.com/cloud/atlas](https://www.mongodb.com/cloud/atlas) and create a free account
+2. Create a free **M0 cluster**
+3. Under **Database Access** — add a user with a username and password
+4. Under **Network Access** — click **Add IP Address** → choose **Allow access from anywhere**
+5. Click **Connect** → **Drivers** → copy the connection string
+
+### Step 3 — Deploy on Render
+1. Go to [render.com](https://render.com) and sign up
+2. Click **New +** → **Web Service** → connect your GitHub repo
+3. Set these:
+   - **Build Command:** `npm install`
+   - **Start Command:** `npm start`
+   - **Root Directory:** *(leave blank)*
+4. Under **Environment Variables**, add:
+
+| Key | Value |
+|---|---|
+| `MONGODB_URI` | Your Atlas connection string |
+| `SESSION_SECRET` | Any long random string |
+| `JWT_SECRET` | Any long random string |
+| `NODE_ENV` | `production` |
+| `GEMINI_API_KEY` | Your Gemini key (optional) |
+| `GEMINI_MODEL` | `gemini-2.0-flash` (optional) |
+
+5. Click **Create Web Service** — Render builds and deploys automatically
+
+> **Note:** The free tier on Render "sleeps" after 15 minutes of inactivity. The first visit after sleep takes about 30 seconds to load. This is normal.
+
+---
+
+## Common problems
+
+**"Cannot connect to MongoDB"**
+- Make sure MongoDB is running locally, OR your Atlas connection string is correct
+- If using Atlas, check that your IP is whitelisted under Network Access
+
+**"Port already in use"**
+- Change the `PORT` in your `.env` to something else like `3001`
+
+**"Module not found"**
+- Run `npm install` again — a dependency is missing
+
+**Camera/mic not working in video calls**
+- Browsers only allow camera access on **HTTPS** or **localhost**
+- On a deployed site, make sure you're on `https://`
+- Check that you clicked "Allow" when the browser asked for permissions
+
+**AI assistant not responding**
+- Make sure `GEMINI_API_KEY` is set in your environment variables
+- Check that the key is valid at [aistudio.google.com](https://aistudio.google.com)
+
+---
+
+## REST API
+
+If you want to build something on top of SocialSphere, there's a basic JSON API. First get your token:
+
+```
+GET /api/token
+```
+
+Then include it in requests as a header:
+```
+Authorization: Bearer YOUR_TOKEN_HERE
+```
+
+| Method | Endpoint | What it does |
 |---|---|---|
-| `register` | client → server | Associate userId with socket |
-| `callUser` | caller → server | Send SDP offer to callee |
-| `incomingCall` | server → callee | Deliver offer + caller info |
-| `callRinging` | server → caller | Confirm ring was delivered |
-| `acceptCall` | callee → server | Send SDP answer to caller |
-| `callAccepted` | server → caller | Deliver answer |
-| `rejectCall` | callee → server | Decline the call |
-| `iceCandidate` | either → server | Relay ICE candidate to peer |
-| `endCall` | either → server | Notify peer the call ended |
+| GET | `/api/token` | Get your access token |
+| GET | `/api/me` | Your profile info |
+| GET | `/api/feed` | Your home feed as JSON |
+| GET | `/api/posts/:id` | A single post as JSON |
+| POST | `/api/posts/:id/like` | Toggle like on a post |
+| POST | `/auth/refresh` | Get a new access token |
 
 ---
 
-## Deployment
-
-### Render (free hosting)
-1. Push your project to GitHub
-2. Go to render.com → New Web Service → Connect your repo
-3. Build Command: `npm install`
-4. Start Command: `node app.js`
-5. Add your environment variables in the Render dashboard
-6. Note: uploaded files are stored on Render's disk — they reset on each deploy. For production, use Cloudinary or S3 instead.
-
-### Local network (share with friends)
-1. Find your local IP: run `ipconfig` (Windows) or `ifconfig` (Mac/Linux)
-2. Start the app: `npm start`
-3. Friends on the same WiFi open: `http://YOUR_LOCAL_IP:3000`
+Made with ❤️ by [@pandesampoorn-dev](https://github.com/pandesampoorn-dev)
