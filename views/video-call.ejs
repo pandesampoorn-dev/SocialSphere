@@ -1,5 +1,67 @@
 <%- include('partials/header') %>
 
+<style>
+  /* ── Video call page overrides ───────────────────────── */
+  .vc-wrap {
+    position: relative;
+    width: 100%;
+    height: calc(100vh - 160px);
+    min-height: 460px;
+    background: #111;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  /* Remote — fills the whole box */
+  #remoteVideo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: none;
+    background: #111;
+  }
+
+  /* Idle / waiting screen — fills the whole box */
+  #idleScreen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+  }
+
+  /* Local PiP — bottom-right corner */
+  #localVideo {
+    position: absolute;
+    bottom: 14px;
+    right: 14px;
+    width: 140px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 8px;
+    border: 2px solid #fff;
+    background: #333;
+    display: none;
+    z-index: 5;
+  }
+
+  /* Incoming call overlay — covers the whole box */
+  #incomingCallOverlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.82);
+    z-index: 10;
+    border-radius: 10px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+</style>
+
 <div class="container-fluid py-3">
   <div class="row justify-content-center">
     <div class="col-lg-10">
@@ -20,67 +82,52 @@
       </div>
 
       <!-- Main video area -->
-      <div class="card border mb-3">
-        <div class="card-body p-0 position-relative bg-dark rounded" style="min-height:420px;">
+      <div class="vc-wrap mb-3">
 
-          <!-- Remote video (full size) -->
-          <video id="remoteVideo" autoplay playsinline
-            class="w-100 rounded"
-            style="min-height:420px; max-height:520px; object-fit:cover; background:#111; display:none;">
-          </video>
+        <!-- Remote video (full size background) -->
+        <video id="remoteVideo" autoplay playsinline></video>
 
-          <!-- Waiting / idle screen -->
-          <div id="idleScreen" class="d-flex flex-column align-items-center justify-content-center text-white"
-            style="min-height:420px;">
-            <% if (other.avatar) { %>
-              <img src="<%= other.avatar %>" class="rounded-circle mb-3" width="80" height="80" style="object-fit:cover; border:3px solid #fff;">
-            <% } else { %>
-              <div class="avatar-xl mb-3"><%= other.username[0].toUpperCase() %></div>
-            <% } %>
-            <h5 class="mb-1">@<%= other.username %></h5>
-            <p class="text-white-50 small mb-0" id="idleText">Press "Start Call" to call this user</p>
-          </div>
-
-          <!-- Incoming call overlay -->
-          <div id="incomingCallOverlay" class="position-absolute top-0 start-0 w-100 h-100 d-none
-            d-flex flex-column align-items-center justify-content-center"
-            style="background:rgba(0,0,0,0.82); z-index:10; border-radius:8px;">
-            <p class="text-white-50 small mb-2">Incoming call from</p>
-            <h4 class="text-white mb-4" id="callerName"></h4>
-            <div class="d-flex gap-3">
-              <button class="btn btn-success btn-lg px-4" id="acceptBtn">Accept</button>
-              <button class="btn btn-danger btn-lg px-4"  id="rejectBtn">Decline</button>
+        <!-- Waiting / idle screen -->
+        <div id="idleScreen">
+          <% if (other.avatar) { %>
+            <img src="<%= other.avatar %>" class="rounded-circle mb-3"
+                 width="90" height="90" style="object-fit:cover; border:3px solid rgba(255,255,255,0.6);">
+          <% } else { %>
+            <div class="avatar-xl mb-3" style="width:90px;height:90px;font-size:2rem;
+                 background:#0d6efd;border-radius:50%;display:flex;align-items:center;
+                 justify-content:center;color:#fff;font-weight:700;">
+              <%= other.username[0].toUpperCase() %>
             </div>
-          </div>
-
-          <!-- My local video (picture-in-picture) -->
-          <video id="localVideo" autoplay playsinline muted
-            class="position-absolute rounded border border-white"
-            style="width:140px; height:100px; object-fit:cover; bottom:14px; right:14px; background:#333; display:none;">
-          </video>
+          <% } %>
+          <h5 class="mb-1 text-white">@<%= other.username %></h5>
+          <p class="text-white-50 small mb-0" id="idleText">Press "Start Call" to call this user</p>
         </div>
+
+        <!-- Incoming call overlay -->
+        <div id="incomingCallOverlay" class="d-none">
+          <p class="text-white-50 small mb-2">Incoming call from</p>
+          <h4 class="text-white mb-4" id="callerName"></h4>
+          <div class="d-flex gap-3">
+            <button class="btn btn-success btn-lg px-4" id="acceptBtn">Accept</button>
+            <button class="btn btn-danger  btn-lg px-4" id="rejectBtn">Decline</button>
+          </div>
+        </div>
+
+        <!-- Local PiP -->
+        <video id="localVideo" autoplay playsinline muted></video>
+
       </div>
 
       <!-- Controls -->
       <div class="card border">
         <div class="card-body py-2 px-3">
           <div class="d-flex align-items-center gap-2 flex-wrap">
-            <button class="btn btn-primary" id="startCallBtn">
-              Start Call
-            </button>
-            <button class="btn btn-danger d-none" id="endCallBtn">
-              End Call
-            </button>
-            <button class="btn btn-outline-secondary" id="toggleMicBtn" disabled title="Mute/unmute">
-              Mic On
-            </button>
-            <button class="btn btn-outline-secondary" id="toggleCamBtn" disabled title="Camera on/off">
-              Camera On
-            </button>
+            <button class="btn btn-primary"        id="startCallBtn">Start Call</button>
+            <button class="btn btn-danger d-none"  id="endCallBtn">End Call</button>
+            <button class="btn btn-outline-secondary" id="toggleMicBtn" disabled>Mic On</button>
+            <button class="btn btn-outline-secondary" id="toggleCamBtn" disabled>Camera On</button>
             <div class="ms-auto">
-              <a href="/dm/<%= other.username %>" class="btn btn-outline-secondary btn-sm">
-                Open Chat
-              </a>
+              <a href="/dm/<%= other.username %>" class="btn btn-outline-secondary btn-sm">Open Chat</a>
             </div>
           </div>
         </div>
@@ -93,7 +140,6 @@
   </div>
 </div>
 
-<!-- Pass user data to JS -->
 <script src="/socket.io/socket.io.js"></script>
 <script>
   const ME    = { _id: "<%= me._id %>",    username: "<%= me.username %>",    avatar: "<%= me.avatar || '' %>" };
