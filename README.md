@@ -8,14 +8,14 @@ A full-stack social media web app where you can post, chat, message, and video c
 
 ## What can you do on SocialSphere?
 
-- 📝 **Create posts** with text, images, and videos
-- ❤️ **Like and comment** on posts
-- 👤 **Follow people** and see their posts in your feed
-- 🔍 **Search users** by name or bio
-- 💬 **Group chat** — a live chatroom anyone logged in can join
-- 📩 **Direct messages** — private 1-1 real-time chat
-- 📹 **Video calls** — peer-to-peer video calling right in the browser
-- 🤖 **AI writing assistant** — helps you write better posts using Google Gemini
+-  **Create posts** with text, images, and videos
+-  **Like and comment** on posts
+-  **Follow people** and see their posts in your feed
+-  **Search users** by name or bio
+-  **Group chat** — a live chatroom anyone logged in can join
+-  **Direct messages** — private 1-1 real-time chat
+-  **Video calls** — peer-to-peer video calling right in the browser
+-  **AI writing assistant** — helps you write better posts using Google Gemini
 
 ---
 
@@ -117,40 +117,40 @@ You should see the SocialSphere landing page. Register an account and start expl
 
 ## Features explained
 
-### 🔐 Authentication
+###  Authentication
 
 - Register with a username, email and password
 - Passwords are encrypted before being stored (using bcrypt)
 - Login creates a **session** (keeps you logged in) and a **JWT token** (used for the API)
 - A "refresh token" system keeps you logged in for 7 days without re-entering your password
 
-### 📝 Posts
+###  Posts
 
 - Write a post with a title, body text, and optional tags
 - Attach up to **5 photos or videos** per post (JPG, PNG, GIF, WEBP, MP4, WEBM, MOV)
 - Max file size: 50 MB per file
 - Like, comment, edit, and delete your own posts
 
-### 👥 Follow System
+###  Follow System
 
 - Follow other users to see their posts in your home feed
 - The home feed shows posts from everyone you follow, newest first
 - Suggested users are shown on the home page
 
-### 💬 Group Chat
+###  Group Chat
 
 - Click **Chat** in the navbar to join the live group chatroom
 - All logged-in users see messages in real time
 - Shows who is currently online and typing indicators
 
-### 📩 Direct Messages
+###  Direct Messages
 
 - Go to any user's profile and click **Message** to start a DM
 - Messages are saved in the database so you can scroll back through history
 - New messages appear instantly without refreshing the page
 - Shows unread message count in the conversation list
 
-### 📹 Video Calls (WebRTC)
+###  Video Calls (WebRTC)
 
 Video calls work **peer-to-peer** — meaning the video and audio go directly between the two browsers. The server only helps the two users find each other (called "signalling").
 
@@ -170,7 +170,7 @@ Video calls work **peer-to-peer** — meaning the video and audio go directly be
 5. A direct peer-to-peer connection is established
 6. Video/audio flows directly — **no media passes through the server**
 
-### 🤖 AI Writing Assistant
+###  AI Writing Assistant
 
 When creating a post, click **AI Assistant** to open a side panel powered by Google Gemini 2.0 Flash.
 
@@ -345,4 +345,3 @@ Authorization: Bearer YOUR_TOKEN_HERE
 
 ---
 
-Made with ❤️ by [@pandesampoorn-dev](https://github.com/pandesampoorn-dev)
