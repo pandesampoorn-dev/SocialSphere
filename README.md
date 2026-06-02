@@ -34,23 +34,6 @@ A full-stack social media web app where you can post, chat, message, and video c
 
 ---
 
-## Running it locally
-
-### What you need first
-
-Before you start, make sure you have these installed on your computer:
-
-- **Node.js** — [Download here](https://nodejs.org) (pick the LTS version)
-- **MongoDB** — [Download here](https://www.mongodb.com/try/download/community) OR use the free cloud version [MongoDB Atlas](https://www.mongodb.com/cloud/atlas)
-- **Git** — [Download here](https://git-scm.com)
-
-To check if Node.js is installed, open a terminal and type:
-```
-node -v
-```
-You should see a version number like `v20.x.x`.
-
----
 
 ### Step 1 — Download the code
 
